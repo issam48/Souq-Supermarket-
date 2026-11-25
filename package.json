@@ -1,0 +1,59 @@
+{
+  "name": "souq-management",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Souq",
+  "description": "Local-first supermarket ERP and point-of-sale",
+  "type": "module",
+  "main": "desktop/main.mjs",
+  "engines": {
+    "node": ">=22.14"
+  },
+  "scripts": {
+    "start": "node server/index.mjs",
+    "start:desktop": "electron .",
+    "icon:win": "node desktop/create-icon.mjs",
+    "dist:win": "npm run icon:win && electron-builder --win",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "electron": "45.5.0",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "dz.souq.retail",
+    "productName": "Souq Supermarket",
+    "asar": true,
+    "files": [
+      "desktop/**/*",
+      "server/**/*",
+      "database/**/*",
+      "public/**/*",
+      "package.json",
+      "README.md",
+      "!data/**/*",
+      "!test/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "icon": "desktop/souq.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "Souq-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true
+    }
+  }
+}

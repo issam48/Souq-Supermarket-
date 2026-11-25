@@ -1,0 +1,9 @@
+{
+  "name": "Souq Supermarket Management",
+  "short_name": "Souq",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f6f7",
+  "theme_color": "#122a35",
+  "description": "Gestion locale de magasin et point de vente"
+}

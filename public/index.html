@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#122a35">
+  <meta name="description" content="Gestion de supermarché et point de vente local">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles.css">
+  <title>Souq — Gestion de magasin</title>
+</head>
+<body>
+  <section id="auth-screen" class="auth-screen" hidden>
+    <div class="auth-card">
+      <div class="brand-mark">S</div>
+      <p class="eyebrow">SOUQ · RETAIL MANAGEMENT</p>
+      <h1 id="auth-title">Bienvenue</h1>
+      <p id="auth-hint" class="muted"></p>
+      <form id="auth-form" class="form-stack">
+        <label><span data-i18n="username">Nom d'utilisateur</span><input name="username" required autocomplete="username" minlength="3"></label>
+        <label><span data-i18n="password">Mot de passe</span><input name="password" type="password" required autocomplete="current-password"></label>
+        <button id="auth-submit" class="button button-primary" type="submit">Se connecter</button>
+      </form>
+      <p id="auth-error" class="form-error" role="alert"></p>
+    </div>
+  </section>
+
+  <div id="app" class="app-shell" hidden>
+    <aside class="sidebar">
+      <a class="brand" href="#" data-page="dashboard"><span class="brand-mark">S</span><span><b>souq</b><small>STORE MANAGEMENT</small></span></a>
+      <div class="store-chip"><span class="status-dot"></span><span id="store-label">Mon magasin</span></div>
+      <nav id="main-nav" aria-label="Navigation principale">
+        <p class="nav-caption" data-i18n="overview">APERÇU</p>
+        <button class="nav-link active" data-page="dashboard"><span class="nav-icon">⌂</span><span data-i18n="dashboard">Tableau de bord</span></button>
+        <button class="nav-link" data-page="pos"><span class="nav-icon">▣</span><span data-i18n="pos">Point de vente</span><kbd>F2</kbd></button>
+        <p class="nav-caption" data-i18n="catalog">CATALOGUE</p>
+        <button class="nav-link" data-page="products"><span class="nav-icon">▦</span><span data-i18n="products">Produits</span></button>
+        <button class="nav-link" data-page="inventory"><span class="nav-icon">⇄</span><span data-i18n="inventory">Inventaire</span></button>
+        <button class="nav-link" data-page="purchases"><span class="nav-icon">▤</span><span data-i18n="purchases">Achats & fournisseurs</span></button>
+        <p class="nav-caption" data-i18n="operations">OPÉRATIONS</p>
+        <button class="nav-link" data-page="finance"><span class="nav-icon">◈</span><span data-i18n="finance">Caisse & finances</span></button>
+        <button class="nav-link" data-page="reports"><span class="nav-icon">▥</span><span data-i18n="reports">Rapports</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-link" data-page="settings"><span class="nav-icon">⚙</span><span data-i18n="settings">Paramètres</span></button>
+        <div class="user-summary"><span class="avatar" id="user-avatar">S</span><span class="user-meta"><b id="user-name">Admin</b><small id="user-role">Administrateur</small></span><button id="logout" class="icon-button" title="Déconnexion" aria-label="Déconnexion">↪</button></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="mobile-brand"><span class="brand-mark">S</span><b>souq</b></div>
+        <div class="breadcrumb"><span data-i18n="workspace">Espace de travail</span><span> / </span><b id="page-title">Tableau de bord</b></div>
+        <div class="top-actions">
+          <span class="today-label" id="today-label"></span>
+          <button class="icon-button notification-button" data-page="inventory" title="Alertes de stock" aria-label="Alertes de stock">♢<i id="alert-count" hidden></i></button>
+          <span id="top-user" class="top-user"></span>
+        </div>
+      </header>
+
+      <section id="page-dashboard" class="page active">
+        <div class="page-heading"><div><p class="eyebrow" data-i18n="businessOverview">VUE D'ENSEMBLE</p><h1 data-i18n="goodMorning">Bonjour, voici votre activité</h1><p class="muted" data-i18n="dashboardSubtitle">Suivez les ventes, les stocks et les opérations du magasin.</p></div><div class="heading-actions"><select id="dashboard-period" class="select-control"><option value="day" data-i18n="today">Aujourd'hui</option><option value="week" data-i18n="last7">7 derniers jours</option><option value="month" data-i18n="thisMonth">Ce mois</option></select><button class="button button-secondary" data-action="refresh-dashboard">↻ <span data-i18n="refresh">Actualiser</span></button></div></div>
+        <div class="metric-grid">
+          <article class="metric-card"><div class="metric-label"><span data-i18n="salesRevenue">Chiffre d'affaires</span><span class="metric-icon green">↗</span></div><strong id="metric-revenue">—</strong><small id="metric-sales">—</small></article>
+          <article class="metric-card"><div class="metric-label"><span data-i18n="grossProfit">Marge brute</span><span class="metric-icon blue">◈</span></div><strong id="metric-profit">—</strong><small data-i18n="beforeExpenses">Avant dépenses</small></article>
+          <article class="metric-card"><div class="metric-label"><span data-i18n="netProfit">Résultat net</span><span class="metric-icon orange">◎</span></div><strong id="metric-net">—</strong><small data-i18n="afterExpenses">Après dépenses</small></article>
+          <article class="metric-card"><div class="metric-label"><span data-i18n="customerDebt">Dettes clients</span><span class="metric-icon purple">◷</span></div><strong id="metric-debt">—</strong><small id="metric-supplier-debt">—</small></article>
+        </div>
+        <div class="dashboard-grid">
+          <article class="panel chart-panel"><div class="panel-heading"><div><h2 data-i18n="salesTrend">Tendance des ventes</h2><p data-i18n="last7Days">Chiffre d'affaires · 7 derniers jours</p></div><span class="panel-menu">DZD</span></div><div id="sales-chart" class="chart-area"></div></article>
+          <article class="panel"><div class="panel-heading"><div><h2 data-i18n="topProducts">Meilleures ventes</h2><p data-i18n="topProductsSubtitle">Produits les plus vendus sur la période</p></div><button class="text-button" data-page="reports" data-i18n="viewReport">Voir le rapport →</button></div><div id="bestsellers" class="rank-list"></div></article>
+        </div>
+        <div class="dashboard-grid lower-grid">
+          <article class="panel"><div class="panel-heading"><div><h2 data-i18n="lowStock">Stock faible</h2><p data-i18n="lowStockSubtitle">Produits au niveau minimum ou en dessous</p></div><button class="text-button" data-page="inventory" data-i18n="viewAll">Voir tout</button></div><div id="low-stock-list" class="alert-list"></div></article>
+          <article class="panel"><div class="panel-heading"><div><h2 data-i18n="expiringProducts">Dates proches</h2><p data-i18n="expiringSubtitle">Produits expirés ou à échéance sous 30 jours</p></div><button class="text-button" data-page="inventory" data-i18n="viewAll">Voir tout</button></div><div id="expiry-list" class="alert-list"></div></article>
+        </div>
+      </section>
+
+      <section id="page-pos" class="page">
+        <div class="page-heading compact"><div><p class="eyebrow" data-i18n="checkout">ENCAISSEMENT</p><h1 data-i18n="newSale">Nouvelle vente</h1></div><span id="pos-cash-badge" class="badge"></span></div>
+        <div class="pos-layout">
+          <div class="panel pos-products"><div class="search-wrap"><span>⌕</span><input id="pos-search" class="search-input" data-i18n-placeholder="searchProducts" placeholder="Rechercher par nom, SKU ou scanner un code-barres…" autocomplete="off"><kbd>Entrée</kbd></div><div id="pos-results" class="product-results"></div></div>
+          <div class="panel cart-panel"><div class="panel-heading"><div><h2 data-i18n="currentSale">Vente en cours</h2><p id="cart-count">0 article</p></div><button id="clear-cart" class="text-button danger-text" data-i18n="clear">Vider</button></div><div id="cart-lines" class="cart-lines"></div><div class="cart-checkout">
+            <label class="inline-field"><span data-i18n="customerOptional">Client (facultatif)</span><select id="pos-customer" class="select-control"><option value="" data-i18n="walkin">Client comptoir</option></select></label>
+            <label class="inline-field"><span data-i18n="discount">Remise (DZD)</span><input id="pos-discount" type="number" min="0" step="0.01" value="0"></label>
+            <div class="total-row"><span data-i18n="subtotal">Sous-total</span><b id="cart-subtotal">0,00 DZD</b></div><div class="total-row discount-row"><span data-i18n="discount">Remise</span><b id="cart-discount">0,00 DZD</b></div><div class="total-row grand-total"><span data-i18n="totalDue">Total à payer</span><b id="cart-total">0,00 DZD</b></div>
+            <div class="payment-editor"><div class="payment-title"><b data-i18n="payments">Paiements</b><button id="add-payment" class="text-button" data-i18n="addPayment">+ Ajouter</button></div><div id="payment-lines"></div><div class="total-row"><span data-i18n="remaining">Reste à payer</span><b id="cart-remaining">0,00 DZD</b></div></div>
+            <button id="checkout" class="button button-primary checkout-button" data-i18n="completeSale">Valider la vente</button>
+          </div></div>
+        </div>
+      </section>
+
+      <section id="page-products" class="page">
+        <div class="page-heading"><div><p class="eyebrow" data-i18n="catalogManagement">CATALOGUE</p><h1 data-i18n="products">Produits</h1><p class="muted" data-i18n="productsSubtitle">Gérez le catalogue, les prix et les seuils de stock.</p></div><div class="heading-actions"><button class="button button-primary manager-only" data-action="new-product">＋ <span data-i18n="addProduct">Ajouter un produit</span></button></div></div>
+        <div class="panel table-panel"><div class="table-toolbar"><div class="search-wrap table-search"><span>⌕</span><input id="product-search" class="search-input" data-i18n-placeholder="searchCatalog" placeholder="Rechercher un produit, SKU ou code-barres"></div><button class="button button-secondary manager-only" data-action="new-category">＋ <span data-i18n="category">Catégorie</span></button></div><div class="table-wrap"><table><thead><tr><th data-i18n="product">Produit</th><th data-i18n="barcode">Code-barres</th><th data-i18n="category">Catégorie</th><th data-i18n="purchasePrice">Prix d'achat</th><th data-i18n="sellingPrice">Prix de vente</th><th data-i18n="stock">Stock</th><th data-i18n="actions">Actions</th></tr></thead><tbody id="products-table"></tbody></table></div></div>
+      </section>
+
+      <section id="page-inventory" class="page">
+        <div class="page-heading"><div><p class="eyebrow" data-i18n="stockControl">MOUVEMENTS & ALERTES</p><h1 data-i18n="inventory">Inventaire</h1><p class="muted" data-i18n="inventorySubtitle">Consultez les mouvements et corrigez les quantités disponibles.</p></div><button class="button button-primary manager-only" data-action="new-adjustment">＋ <span data-i18n="adjustStock">Ajuster le stock</span></button></div>
+        <div class="metric-grid inventory-metrics"><article class="metric-card"><div class="metric-label" data-i18n="lowStock">Stock faible</div><strong id="inventory-low-count">0</strong><small data-i18n="productsBelowMin">Produits sous le seuil minimum</small></article><article class="metric-card"><div class="metric-label" data-i18n="expiringProducts">Dates proches</div><strong id="inventory-expiry-count">0</strong><small data-i18n="next30Days">Dans les 30 prochains jours</small></article></div>
+        <div class="panel table-panel"><div class="panel-heading"><div><h2 data-i18n="movementHistory">Historique des mouvements</h2><p data-i18n="inventorySubtitle">Entrées, sorties et ajustements</p></div></div><div class="table-wrap"><table><thead><tr><th data-i18n="date">Date</th><th data-i18n="product">Produit</th><th data-i18n="movement">Mouvement</th><th data-i18n="quantity">Quantité</th><th data-i18n="reference">Référence</th><th data-i18n="user">Utilisateur</th><th data-i18n="note">Note</th></tr></thead><tbody id="movements-table"></tbody></table></div></div>
+      </section>
+
+      <section id="page-purchases" class="page">
+        <div class="page-heading"><div><p class="eyebrow" data-i18n="supplyChain">APPROVISIONNEMENT</p><h1 data-i18n="purchases">Achats & fournisseurs</h1><p class="muted" data-i18n="purchasesSubtitle">Réceptionnez les achats et suivez les soldes fournisseurs.</p></div><button class="button button-primary manager-only" data-action="new-purchase">＋ <span data-i18n="newPurchase">Nouvel achat</span></button></div>
+        <div class="dashboard-grid purchase-top"><article class="panel"><div class="panel-heading"><div><h2 data-i18n="suppliers">Fournisseurs</h2><p data-i18n="supplierSubtitle">Contacts et soldes à régler</p></div><button class="text-button manager-only" data-action="new-supplier">+ <span data-i18n="addSupplier">Ajouter</span></button></div><div id="supplier-list" class="entity-list"></div></article><article class="panel"><div class="panel-heading"><div><h2 data-i18n="customers">Clients</h2><p data-i18n="customerSubtitle">Comptes et paiements à recevoir</p></div><button class="text-button" data-action="new-customer">+ <span data-i18n="addCustomer">Ajouter</span></button></div><div id="customer-list" class="entity-list"></div></article></div>
+        <div class="panel table-panel"><div class="panel-heading"><div><h2 data-i18n="purchaseHistory">Factures d'achat</h2></div></div><div class="table-wrap"><table><thead><tr><th data-i18n="date">Date</th><th data-i18n="invoice">Facture</th><th data-i18n="supplier">Fournisseur</th><th data-i18n="total">Total</th><th data-i18n="paid">Payé</th><th data-i18n="status">Statut</th><th data-i18n="actions">Actions</th></tr></thead><tbody id="purchases-table"></tbody></table></div></div>
+      </section>
+
+      <section id="page-finance" class="page">
+        <div class="page-heading"><div><p class="eyebrow" data-i18n="cashAndExpenses">TRÉSORERIE</p><h1 data-i18n="finance">Caisse & finances</h1><p class="muted" data-i18n="financeSubtitle">Suivez la caisse, les dépenses et les soldes en cours.</p></div><button class="button button-secondary manager-only" data-action="new-expense">＋ <span data-i18n="recordExpense">Enregistrer une dépense</span></button></div>
+        <div class="dashboard-grid finance-top"><article class="panel cash-panel"><div class="panel-heading"><div><h2 data-i18n="cashRegister">Caisse</h2><p id="cash-description"></p></div><span id="cash-status" class="badge"></span></div><div id="cash-details" class="cash-details"></div><div id="cash-actions"></div></article><article class="panel"><div class="panel-heading"><div><h2 data-i18n="balances">Soldes des comptes</h2><p data-i18n="balancesSubtitle">Montants à recevoir et à régler</p></div></div><div class="balance-cards"><div><span data-i18n="customerDebt">Dettes clients</span><strong id="finance-customer-debt">—</strong></div><div><span data-i18n="supplierDebt">Dettes fournisseurs</span><strong id="finance-supplier-debt">—</strong></div></div></article></div>
+        <div class="panel table-panel"><div class="panel-heading"><div><h2 data-i18n="expenseHistory">Dépenses récentes</h2></div></div><div class="table-wrap"><table><thead><tr><th data-i18n="date">Date</th><th data-i18n="description">Description</th><th data-i18n="category">Catégorie</th><th data-i18n="amount">Montant</th><th data-i18n="paymentMethod">Mode de paiement</th><th data-i18n="user">Utilisateur</th></tr></thead><tbody id="expenses-table"></tbody></table></div></div>
+      </section>
+
+      <section id="page-reports" class="page">
+        <div class="page-heading"><div><p class="eyebrow" data-i18n="analytics">ANALYSE</p><h1 data-i18n="reports">Rapports</h1><p class="muted" data-i18n="reportsSubtitle">Analysez les ventes et exportez les résultats.</p></div><div class="heading-actions"><button class="button button-secondary" data-action="print-report">▤ <span data-i18n="exportPdf">Imprimer / PDF</span></button><button class="button button-secondary" data-action="export-csv">⇩ <span data-i18n="exportExcel">Exporter Excel</span></button></div></div>
+        <div class="panel report-filter"><label><span data-i18n="from">Du</span><input id="report-from" type="date"></label><label><span data-i18n="to">Au</span><input id="report-to" type="date"></label><button class="button button-primary" data-action="run-report" data-i18n="runReport">Générer le rapport</button></div>
+        <div class="metric-grid report-metrics"><article class="metric-card"><div class="metric-label" data-i18n="sales">Ventes</div><strong id="report-sales-count">—</strong></article><article class="metric-card"><div class="metric-label" data-i18n="salesRevenue">Chiffre d'affaires</div><strong id="report-revenue">—</strong></article><article class="metric-card"><div class="metric-label" data-i18n="discounts">Remises</div><strong id="report-discounts">—</strong></article><article class="metric-card"><div class="metric-label" data-i18n="grossProfit">Marge brute</div><strong id="report-profit">—</strong></article></div>
+        <div class="panel table-panel"><div class="panel-heading"><div><h2 data-i18n="dailyBreakdown">Détail quotidien des ventes</h2></div></div><div class="table-wrap"><table><thead><tr><th data-i18n="date">Date</th><th data-i18n="sales">Ventes</th><th data-i18n="salesRevenue">Chiffre d'affaires</th><th data-i18n="discounts">Remises</th><th data-i18n="grossProfit">Marge brute</th></tr></thead><tbody id="report-table"></tbody></table></div></div>
+        <div class="panel table-panel"><div class="panel-heading"><div><h2 data-i18n="salesHistory">Ventes récentes</h2></div></div><div class="table-wrap"><table><thead><tr><th data-i18n="receipt">Reçu</th><th data-i18n="date">Date</th><th data-i18n="customer">Client</th><th data-i18n="total">Total</th><th data-i18n="paid">Payé</th><th data-i18n="status">Statut</th><th data-i18n="actions">Actions</th></tr></thead><tbody id="sales-table"></tbody></table></div></div>
+      </section>
+
+      <section id="page-settings" class="page">
+        <div class="page-heading"><div><p class="eyebrow" data-i18n="storeSetup">CONFIGURATION</p><h1 data-i18n="settings">Paramètres</h1><p class="muted" data-i18n="settingsSubtitle">Personnalisez le magasin et la langue de l'interface.</p></div></div>
+        <div class="settings-grid"><article class="panel settings-panel"><div class="panel-heading"><div><h2 data-i18n="storePreferences">Préférences du magasin</h2><p data-i18n="storePreferencesSubtitle">Nom, langue et devise locale</p></div></div><form id="settings-form" class="form-grid"><label class="span-2"><span data-i18n="storeName">Nom du magasin</span><input name="store_name" required maxlength="100"></label><label><span data-i18n="language">Langue</span><select name="locale"><option value="fr">Français</option><option value="ar">العربية</option></select></label><label><span data-i18n="currency">Devise</span><input value="DZD — Dinar algérien" disabled></label><div class="span-2"><button class="button button-primary" data-i18n="saveSettings">Enregistrer les paramètres</button></div></form></article>
+          <article class="panel settings-panel admin-only"><div class="panel-heading"><div><h2 data-i18n="databaseBackup">Sauvegarde des données</h2><p data-i18n="backupSubtitle">Créer une copie cohérente de la base SQLite locale.</p></div></div><p class="muted" id="backup-location"></p><button class="button button-secondary" data-action="create-backup">⤓ <span data-i18n="createBackup">Créer une sauvegarde</span></button><div id="backup-result" class="backup-list"></div></article>
+          <article class="panel settings-panel admin-only"><div class="panel-heading"><div><h2 data-i18n="userAccounts">Comptes utilisateurs</h2><p data-i18n="userAccountsSubtitle">Accès par rôle au système</p></div></div><form id="user-form" class="form-grid"><label><span data-i18n="username">Nom d'utilisateur</span><input name="username" required minlength="3"></label><label><span data-i18n="role">Rôle</span><select name="role"><option value="cashier" data-i18n="cashier">Caissier</option><option value="manager" data-i18n="manager">Gérant</option><option value="admin" data-i18n="administrator">Administrateur</option></select></label><label class="span-2"><span data-i18n="passwordMin">Mot de passe (12 caractères min.)</span><input name="password" type="password" required minlength="12"></label><div class="span-2"><button class="button button-secondary" data-i18n="createUser">Créer l'utilisateur</button></div></form><div id="user-list" class="entity-list"></div></article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="record-dialog" class="record-dialog"><form id="record-form" method="dialog"><div class="dialog-heading"><div><p class="eyebrow" id="dialog-eyebrow"></p><h2 id="dialog-title"></h2></div><button class="icon-button" value="cancel" aria-label="Fermer">×</button></div><div id="dialog-fields" class="form-grid"></div><div class="dialog-actions"><button class="button button-secondary" value="cancel" data-i18n="cancel">Annuler</button><button id="dialog-submit" class="button button-primary" type="submit" value="default" data-i18n="save">Enregistrer</button></div></form></dialog>
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+  <div id="receipt-print" class="receipt-print"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>
